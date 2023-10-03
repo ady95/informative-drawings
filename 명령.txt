@@ -1,0 +1,7 @@
+python test.py --name anime_style --size 512 --dataroot examples/1 --results_dir results
+
+
+
+
+C:\util\potrace-1.16.win64\potrace -s -o 1S24DU8CQV_1_out.svg 1S24DU8CQV_1_out.bmp
+C:\util\potrace-1.16.win64\potrace -s -k 0.65 -t 6 -o fd16b069557e5430623fb73821be5e52_out.svg fd16b069557e5430623fb73821be5e52_out.bmp

@@ -4,9 +4,6 @@ channels:
   - defaults
 dependencies:
   - python
-  - pytorch
-  - torchvision
-  - torchaudio
   - numpy
   - scipy
   - pip
