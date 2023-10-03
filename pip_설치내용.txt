@@ -1,1 +1,5 @@
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+pip install ultralytics
+pip install slack_bolt
+pip install redis
+pip install paho-mqtt

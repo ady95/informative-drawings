@@ -3,7 +3,8 @@ import json
 import paho.mqtt.client as mqtt
 from portrait_helper import PortraitHelper
 
-MQTT_TOPIC = "drawgpt"
+import config
+# MQTT_TOPIC = "drawgpt"
 
 
 helper = PortraitHelper()
@@ -30,9 +31,8 @@ def on_message(client, userdata, message):
         print(ex)
 
 
-broker_address = "192.168.10.36"
 client1 = mqtt.Client("client1")
-client1.connect(broker_address)
-client1.subscribe(MQTT_TOPIC)
+client1.connect(config.MQTT.HOST)
+client1.subscribe(config.MQTT.TOPIC)
 client1.on_message = on_message
 client1.loop_forever()

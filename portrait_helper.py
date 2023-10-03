@@ -14,7 +14,7 @@ import config
 
 class PortraitHelper:
 
-    SVG_FOLDER = r"E:\GIT_AI\informative-drawings\output\svg"
+    # SVG_FOLDER = r"C:\GIT\informative-drawings_ady95\output\svg"
 
     def __init__(self):
         self.redisHelper = RedisHelper(config)
@@ -37,23 +37,32 @@ class PortraitHelper:
         box_list = self.faceDetector.pedict(img)
         print("box_list:", box_list)
         square_img = self.faceDetector.get_square_image(img, box_list)
-        print(square_img.size)
+        print(square_img.size, square_img.mode)
+        
+        # 3채널 RGB로 변환 (RGBA -> RGB)
+        if square_img.mode != "RGB":
+            square_img = square_img.convert('RGB')
+        
         print("len(box_list):", len(box_list))
         if len(box_list) == 1:
             # 1. 카툰화
+
+
             ani_img = self.run_anime_gan(square_img)
             ret = slack_util.upload_image(slack_channel, ani_img, "1. 카툰화", slack_ts)
             image_url = slack_util.get_download_url(ret)
             self.redisHelper.set(user_key, "anime", image_url)
 
-        INPUT_PHOTO_NAME = f"1.{img_ext}"
+        # INPUT_PHOTO_NAME = f"1.{img_ext}"
+        INPUT_PHOTO_NAME = f"1.jpg"
         INPUT_ANIME_NAME = "2.png"
         OUTPUT_PHOTO_FILE = "1_out.png"
         OUTPUT_ANIME_FILE = "2_out.png"
 
         # 2. 드로잉(사진+카툰화)        
-        INPUT_FOLDER = "temp/input"
-        OUTPUT_FOLDER = "temp/output"
+        INPUT_FOLDER = os.path.join(config.Local.TEMP_FOLDER, "input")
+        OUTPUT_FOLDER = os.path.join(config.Local.TEMP_FOLDER, "output")
+        
         square_img.save(os.path.join(INPUT_FOLDER, INPUT_PHOTO_NAME))
         if len(box_list) == 1:
             ani_img.save(os.path.join(INPUT_FOLDER, INPUT_ANIME_NAME))
@@ -82,10 +91,10 @@ class PortraitHelper:
             self.convert_image_ext(anime_drawing_path, anime_bmp_path)
 
         # 4. SVG
-        photo_svg_path = os.path.join(self.SVG_FOLDER, user_key + "_photo.svg")
+        photo_svg_path = os.path.join(config.Local.SVG_FOLDER, user_key + "_photo.svg")
         self.convert_svg(photo_bmp_path, photo_svg_path)
         if len(box_list) == 1:
-            anime_svg_path = os.path.join(self.SVG_FOLDER, user_key + "_anime.svg")
+            anime_svg_path = os.path.join(config.Local.SVG_FOLDER, user_key + "_anime.svg")
             self.convert_svg(anime_bmp_path, anime_svg_path)
 
         ret = slack_util.upload_file(slack_channel, photo_svg_path, "3. SVG(사진)", slack_ts)
@@ -122,7 +131,7 @@ class PortraitHelper:
 
     def convert_svg(self, input_path, output_path):
         # C:\util\potrace-1.16.win64\potrace -s -k 0.65 -t 6 -o fd16b069557e5430623fb73821be5e52_out.svg fd16b069557e5430623fb73821be5e52_out.bmp
-        commands = [r'D:\util\potrace-1.16.win64\potrace.exe', '-s', '-k', '0.8', '-t', '5', '-o', output_path, input_path]
+        commands = [config.Local.POTRACE, '-s', '-k', '0.8', '-t', '5', '-o', output_path, input_path]
 
         print(" ".join(commands))
 
@@ -133,10 +142,12 @@ class PortraitHelper:
 if __name__ == "__main__":
     helper = PortraitHelper()
 
-    slack_ts = "1695832761.355159"
+    # {"ts": "1696323805.799889", "text": "90014461", "channel": "C05TRJEUPF0", "download_url": "https://files.slack.com/files-pri/T05TH4T3WMD-F05UPS705HC/download/_________.jpg"}
+
+    slack_ts = "1696323805.799889"
     slack_channel = "C05TRJEUPF0"
-    user_key = "01090014461"
-    file_url = "https://files.slack.com/files-pri/T05TH4T3WMD-F05TS025GHM/download/_______crop.jpg"
+    user_key = "90014461"
+    file_url = "https://files.slack.com/files-pri/T05TH4T3WMD-F05UPS705HC/download/_________.jpg"
     ret = helper.run(file_url, user_key, slack_channel, slack_ts)
     # ret = slack_util.get_download_url(ret)
     # print("download_url:", ret)
